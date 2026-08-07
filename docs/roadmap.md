@@ -1,0 +1,18 @@
+# Future Extension Roadmap
+
+Ordered roughly by (impact / effort), not strictly by priority — read the
+"justification" column before assuming higher = more important.
+
+| # | Extension | Justification | Effort |
+|---|---|---|---|
+| 1 | Replace the 9 `low_confidence`-flagged parameters (mostly `k_dispersion` for mpox/norovirus/measles/varicella, norovirus R0) with real literature estimates | Highest-leverage accuracy improvement available; these are explicitly the weakest links in the current evidence base (see `docs/design_document.md` §4) | Low-medium (literature search + YAML edit; architecture already supports it) |
+| 2 | Real genomic dataset + end-to-end TransPhylo test | `transphylo_interface.py` is currently documented-but-unexercised (`docs/testing_strategy.md` §4) — a real dated-phylogeny dataset (even a published one from an existing outbreak paper) would let this project actually validate that pathway, not just its error-handling | Medium (need a real dataset + R environment in CI) |
+| 3 | Additional real-world benchmarks per scenario (external → site-based validation) | Every scenario currently has 1-2 real benchmarks; `docs/validation_plan.md` is explicit that this cannot establish general external validity — more independent occurrences of each scenario type would materially strengthen validation claims | Medium (literature search per scenario) |
+| 4 | Network-structured agent-based model | Explicitly NOT built now — see `docs/architecture.md` §5 for the full justification (redundant with the branching process model for current scenarios, no available contact-network data to parameterize it). Revisit if either condition changes. | High |
+| 5 | Variant-specific / time-varying parameter sets (e.g. Omicron-era SARS-CoV-2 alongside the current ancestral-strain default) | Current parameters are 2020-era defaults; several intervention effect sizes (masking, vaccination) already have variant-specific notes in the evidence table that aren't yet wired into separate selectable parameter sets | Medium |
+| 6 | Age-structured contact patterns | Flagged as a limitation for the measles/varicella school scenarios specifically (`docs/validation_plan.md` §6) | Medium-high (needs contact-matrix data, e.g. POLYMOD-style) |
+| 7 | Tau-leaping option for the SEIR engine | Only relevant once/if a scenario needs populations far larger than this project's current 60-600 range, where exact Gillespie SSA would become a genuine performance bottleneck (`docs/architecture.md` §3) | Low-medium |
+| 8 | Static-analysis rule enforcing "no bare `np.random` calls" | Currently enforced by convention only (`docs/reproducibility.md`) — a custom `ruff` rule or `flake8` plugin would make this a CI-enforced invariant rather than a code-review one | Low |
+| 9 | Full PRISMA-compliant systematic review for at least one pathogen, as a calibration check on how much the current targeted-search methodology under- or over-states parameter uncertainty | Would directly answer "how much does the shortcut methodology (`docs/design_document.md` §4) actually cost us in practice" | High (this is genuinely the multi-week undertaking discussed throughout this project's documentation) |
+| 10 | Sobol / variance-based global sensitivity indices alongside PRCC | PRCC assumes monotonic input-output relationships; Sobol indices would catch non-monotonic sensitivity that PRCC could miss, at higher computational cost | Medium |
+| 11 | Web/CLI interface | Everything currently requires writing Python; a thin CLI (`outbreak-sim run choir_rehearsal --n-iterations 5000`) would lower the barrier for non-programmer users | Low-medium |

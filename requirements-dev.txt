@@ -1,0 +1,8 @@
+-r requirements.txt
+
+pytest==9.1.1
+pytest-cov>=4.1
+ruff>=0.4
+
+# Optional (only needed for the real TransPhylo/R integration path):
+# rpy2>=3.5

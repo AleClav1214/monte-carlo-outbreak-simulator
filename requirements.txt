@@ -1,0 +1,10 @@
+# Exact versions this project was developed and tested against (Python 3.12.3).
+# pyproject.toml specifies version floors for library use; this file is for
+# users who want a known-working environment. See docs/reproducibility.md.
+numpy==2.4.4
+scipy==1.17.1
+pandas==3.0.2
+pydantic==2.13.4
+PyYAML==6.0.3
+matplotlib==3.10.8
+networkx==3.6.1

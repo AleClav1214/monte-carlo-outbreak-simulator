@@ -1,0 +1,313 @@
+# Outbreak scenario definitions
+# ===============================
+#
+# A scenario = a pathogen + a specific setting's population/contact structure
+# + (where available) a real, literature-reported outcome used for external
+# validation (requirement #9).
+#
+# contact_rate_multiplier is applied to the pathogen's baseline R0 to represent
+# this setting's elevated (or reduced) transmission risk relative to average
+# community contact -- driven by exposure duration, indoor/ventilation
+# conditions, activity type (e.g. singing generates far more respiratory
+# aerosol than quiet conversation), and population density. This is how the
+# same pathogen entry (e.g. sars_cov_2) supports wildly different effective
+# R across the choir/barracks/dormitory scenarios without duplicating
+# biological parameters three times.
+
+choir_rehearsal:
+  scenario_id: choir_rehearsal
+  display_name: "Indoor choir rehearsal (superspreading event)"
+  pathogen_id: sars_cov_2
+  description: >
+    A ~2.5 hour indoor choir rehearsal with one symptomatic attendee, modeled
+    after the March 2020 Skagit Valley Chorale outbreak. Singing produces
+    substantially elevated respiratory aerosol emission versus quiet talking
+    or breathing (Good et al. 2021 Environ Sci Technol Lett), and the group
+    was seated close together for an extended period in a room with limited
+    ventilation.
+  population:
+    population_size: 61
+    initial_cases: 1
+    setting_type: "indoor gathering, prolonged close seating, aerosol-generating vocal activity"
+    contact_rate_multiplier: 3.2
+    contact_rate_multiplier_low: 1.8
+    contact_rate_multiplier_high: 4.5
+    exposure_duration_hours: 2.5
+    ventilation_ach: 1.0
+  observed_outcomes:
+    - description: "Skagit Valley Chorale rehearsal, Mount Vernon, WA, March 10 2020"
+      attack_rate: 0.86
+      outbreak_size: 52
+      population_at_risk: 61
+      source: "Hamner et al. 2020, MMWR 69(19):606-610"
+      source_url: "https://pubmed.ncbi.nlm.nih.gov/36525760/"
+      caveats: >
+        Widely cited as a single-point-source superspreading event, but a 2023 re-analysis
+        (Axon et al., Public Health 214:85-90) argues it is "vanishingly unlikely" that a
+        single index case alone explains the outbreak given incubation-period timing, and
+        that additional undetected introductions or a longer exposure window are more
+        consistent with the data. This project retains the widely-used single-index-case
+        framing as the default (for comparability with prior modeling work, e.g. Miller
+        et al. 2021 Indoor Air) but flags the controversy explicitly -- do not present this
+        scenario's calibration as if the single-source assumption were undisputed.
+  assumptions:
+    - "Single symptomatic index case at time zero (see caveats above for the counter-argument)."
+    - "Closed population for the duration of the event (no external introductions during the 2.5h rehearsal)."
+    - "Ancestral-strain SARS-CoV-2 parameters (this is a March 2020 event)."
+  limitations:
+    - "n=1 real-world outbreak available for calibration -- cannot distinguish 'this setting is inherently this risky' from 'this specific event was an outlier even among high-risk choir settings.'"
+    - "contact_rate_multiplier is back-calculated to approximately reproduce the observed attack rate, not independently derived from first-principles aerosol physics -- it is a calibration target, not an external prediction, for this specific scenario. Sensitivity to this multiplier should always be reported alongside point estimates (see sensitivity/one_way.py)."
+
+military_barracks:
+  scenario_id: military_barracks
+  display_name: "Military basic training congregate housing"
+  pathogen_id: sars_cov_2
+  description: >
+    Sustained close-quarters contact among several hundred recruits over a
+    multi-week training period, modeled after documented 2020 U.S. Army
+    basic-training outbreaks at Fort Benning and Fort Leonard Wood.
+  population:
+    population_size: 240
+    initial_cases: 2
+    setting_type: "congregate housing, shared dining/training/sleeping areas, multi-week duration"
+    contact_rate_multiplier: 2.0
+    contact_rate_multiplier_low: 1.3
+    contact_rate_multiplier_high: 3.5
+    exposure_duration_hours: null
+    ventilation_ach: 4.0
+  observed_outcomes:
+    - description: "Fort Benning basic training outbreak, 2020 (day-22 cumulative testing)"
+      attack_rate: 0.223
+      outbreak_size: 142
+      population_at_risk: 636
+      source: "Franz et al., 'Prioritizing interventions for preventing COVID-19 outbreaks in military basic training', PLOS Comput Biol 2022"
+      source_url: "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1010489"
+      caveats: "Outbreak was still ongoing at day 22 (not yet a final attack rate); model-fitted R0 for this specific outbreak was very high (median 11.3, 95% CrI 5.7-17.9) -- the source study deliberately used a lower baseline R0 (4.7) for general prevention-planning scenarios, treating the fitted value as representing an atypically severe event."
+    - description: "South Korean army training center, three sequential outbreaks, Jun-Aug 2021"
+      attack_rate: 0.128
+      outbreak_size: null
+      population_at_risk: null
+      source: "Characteristics of COVID-19 outbreaks and risk factors for transmission at an army training center in South Korea, Epidemiol Health / PHRP 2022"
+      source_url: "https://ophrp.org/journal/view.php?doi=10.24171%2Fj.phrp.2022.0149"
+      caveats: "Three separate outbreaks at the same facility had attack rates of 12.8%, 18.1%, and 8.9% -- reported here is the first; substantial within-facility variation across outbreaks illustrates how much stochastic + intervention-timing variation exists even within one setting type."
+  assumptions:
+    - "Two independent introductions (reflecting that trainers/support staff, who are not part of the closed cohort, are a plausible ongoing introduction route per the source study)."
+    - "Population size reflects a single training company (240); real installations have many concurrent companies, not modeled here as a connected network."
+  limitations:
+    - "contact_rate_multiplier of 2.0 is a deliberately conservative middle ground: outbreak-fitted R0 values in the literature ranged from ~4.7 (source study's chosen baseline) up to an 11.3 point estimate for the single most severe documented event -- this project does not use the most extreme observed value as the default, to avoid overstating typical risk, but sensitivity analysis across this full range is strongly recommended before drawing conclusions."
+    - "Does not model trainer/support-staff introductions as an ongoing hazard rate (only sets initial_cases=2); the source study found this to be a materially important intervention target that this simplified scenario does not capture."
+
+university_dormitory:
+  scenario_id: university_dormitory
+  display_name: "University residence hall outbreak"
+  pathogen_id: sars_cov_2
+  description: >
+    Fall-semester residence hall outbreak, modeled after the University of
+    Wisconsin-Madison fall 2020 outbreak, with shared bedrooms/bathrooms and
+    substantial off-campus social mixing (bars, gatherings) as an additional
+    (unmodeled) transmission-reinforcing factor.
+  population:
+    population_size: 600
+    initial_cases: 3
+    setting_type: "congregate housing, shared bedrooms, substantial social mixing outside the residence hall"
+    contact_rate_multiplier: 1.5
+    contact_rate_multiplier_low: 0.9
+    contact_rate_multiplier_high: 2.3
+    exposure_duration_hours: null
+    ventilation_ach: 3.0
+  observed_outcomes:
+    - description: "UW-Madison residence halls overall, fall semester 2020"
+      attack_rate: 0.14
+      outbreak_size: null
+      population_at_risk: null
+      source: "Currie et al., 'Association of Shared Living Spaces and COVID-19 in University Students', Emerging Infectious Diseases 27(11), 2021"
+      source_url: "https://wwwnc.cdc.gov/eid/article/27/11/21-1000_article"
+      caveats: "Aggregate figure across all dormitories; the two hardest-hit halls (Sellery-Witte) had roughly 20% of residents infected, nearly double the campus-wide dormitory average -- substantial within-scenario heterogeneity by specific hall / social-network proximity to off-campus bar clusters."
+    - description: "49-campus cross-sectional benchmark, cumulative attack rate Jul-Oct 2020"
+      attack_rate: 0.062
+      outbreak_size: null
+      population_at_risk: null
+      source: "Clinical trial protocol background citing cross-campus surveillance data, ClinicalTrials.gov NCT04811664"
+      source_url: "https://cdn.clinicaltrials.gov/large-docs/64/NCT04811664/Prot_ICF_000.pdf"
+      caveats: "Broader, more diffuse denominator (all undergraduates, not just dormitory residents) and includes many campuses without a concentrated outbreak -- included here as a lower-bound / 'typical campus, no major outbreak' reference point, contrasted against the UW-Madison outbreak scenario above."
+  assumptions:
+    - "Roommate/shared-bedroom contact structure elevates risk versus single-occupancy (odds ratio 1.52, 95% CI 1.19-1.92, per the Currie et al. source) -- represented here only through the aggregate contact_rate_multiplier, not as an explicit sub-population split."
+    - "Off-campus social mixing (bars, parties) is a known amplifying factor in the source literature but is NOT explicitly modeled as a separate contact category; contact_rate_multiplier implicitly absorbs some of this effect, which means it should not be interpreted as describing in-building transmission risk alone."
+  limitations:
+    - "Two very different observed benchmarks (6.2% broad campus average vs 14-20% concentrated outbreak) span a >3x range -- this scenario models the concentrated-outbreak end; if your use case is 'typical campus, no major outbreak,' use a substantially lower contact_rate_multiplier than the default."
+    - "Off-campus mixing is a known confound not separable from within-dormitory transmission using the available published data."
+
+mpox_gathering:
+  scenario_id: mpox_gathering
+  display_name: "Mpox transmission at a social/sexual-network-connected gathering"
+  pathogen_id: mpox
+  description: >
+    A gathering (private party or similar event) among a sexual network with
+    an index case, modeled after the transmission pattern documented in the
+    2022 multi-country mpox outbreak, where the large majority of transmission
+    occurred through sexual/intimate contact within connected networks rather
+    than casual respiratory or fomite exposure.
+  population:
+    population_size: 40
+    initial_cases: 1
+    setting_type: "private gathering within a connected sexual network"
+    contact_rate_multiplier: 1.0
+    contact_rate_multiplier_low: 0.6
+    contact_rate_multiplier_high: 1.6
+    exposure_duration_hours: 6.0
+    ventilation_ach: null
+  observed_outcomes:
+    - description: "WHO-characterized pattern: ~75% secondary attack rate among sexual contacts vs ~20% among non-sexual household contacts during the 2022-2026 outbreak period"
+      attack_rate: 0.75
+      outbreak_size: null
+      population_at_risk: null
+      source: "WHO Mpox Multi-country External Situation Report no. 64"
+      source_url: "https://cdn.who.int/media/docs/default-source/_sage-2026/multi-country-outbreak-of-mpox--external-situation-report_64.pdf"
+      caveats: "This is a general pattern statement across many events/contacts, not a single documented gathering's outbreak investigation -- no single-event case study with a reported attack rate and population-at-risk was located in this search pass, which is a real gap (see limitations)."
+  assumptions:
+    - "The scenario's contact_rate_multiplier of 1.0 (i.e. no additional multiplier on top of baseline R0) reflects that mpox's baseline R0 estimate is already largely derived from within-sexual-network spread during the 2022 outbreak -- unlike the SARS-CoV-2 scenarios, this is not a 'community pathogen elevated by a special setting' case, it is closer to 'the pathogen's characteristic transmission network already is this setting.'"
+    - "This project does NOT attempt to model detailed sexual-contact-network structure (e.g. degree distributions); the branching process model's k_dispersion parameter is the mechanism by which within-network heterogeneity is represented, in aggregate."
+  limitations:
+    - "No single documented gathering-level outbreak investigation (with population-at-risk and case counts) was located in this search pass to serve as a direct external-validation benchmark -- the observed_outcomes entry above is a general rate statement, not a single-event benchmark, which is a materially weaker form of validation than the choir/barracks/dormitory scenarios have. Flagged explicitly per this project's validation-tier discipline (see docs/validation_plan.md)."
+    - "k_dispersion for mpox is itself a low-confidence placeholder (see pathogens.yaml) -- outputs from this scenario should be treated as illustrative of qualitative dynamics (high attack rate within a connected network, given mpox's contact-network-concentrated spread) rather than precise quantitative prediction."
+
+influenza_outbreak:
+  scenario_id: influenza_outbreak
+  display_name: "Seasonal influenza outbreak in a closed institutional setting"
+  pathogen_id: influenza
+  description: >
+    A generic closed-setting (workplace, school, or long-term-care facility)
+    seasonal influenza outbreak, using household/institutional secondary
+    attack rate literature as the calibration target in the absence of a
+    single named case-study outbreak.
+  population:
+    population_size: 300
+    initial_cases: 2
+    setting_type: "closed institutional setting (school/workplace), moderate contact intensity"
+    contact_rate_multiplier: 1.3
+    contact_rate_multiplier_low: 0.8
+    contact_rate_multiplier_high: 2.0
+    exposure_duration_hours: null
+    ventilation_ach: 4.0
+  observed_outcomes:
+    - description: "Benchmark range: institutional/school influenza outbreak attack rates commonly reported in the 10-40% range depending on setting and season"
+      attack_rate: 0.20
+      outbreak_size: null
+      population_at_risk: null
+      source: "Carcione et al. household/community influenza SAR benchmarking, as summarized in Dhiman et al. 2015 Influenza Other Respir Viruses"
+      source_url: "http://onlinelibrary.wiley.com/doi/10.1111/irv.12321/full"
+      caveats: "This is a cited summary range (10-40%), not a single named outbreak investigation with population-at-risk and case counts -- weaker external-validation evidence than the SARS-CoV-2 scenarios; treat calibration against this scenario as approximate."
+  assumptions:
+    - "Seasonal (non-pandemic) strain parameters."
+    - "No pre-existing population immunity from prior-season infection or vaccination is modeled explicitly (susceptible-at-baseline assumption) -- a simplification, since real populations typically have partial immunity."
+  limitations:
+    - "No single named institutional outbreak with reported population-at-risk was located in this search pass to serve as a precise external-validation benchmark, unlike the SARS-CoV-2 scenarios above."
+
+norovirus_outbreak:
+  scenario_id: norovirus_outbreak
+  display_name: "Norovirus outbreak in a closed institutional setting (school/camp)"
+  pathogen_id: norovirus
+  description: >
+    A closed-setting norovirus outbreak (school or summer camp), calibrated
+    against Catalonia (Spain) school and summer-camp surveillance data,
+    2017-2019.
+  population:
+    population_size: 150
+    initial_cases: 1
+    setting_type: "school or summer camp, person-to-person and fomite transmission"
+    contact_rate_multiplier: 1.0
+    contact_rate_multiplier_low: 0.6
+    contact_rate_multiplier_high: 1.6
+    exposure_duration_hours: null
+    ventilation_ach: null
+  observed_outcomes:
+    - description: "Catalonia schools, 2017-2019 norovirus outbreak surveillance"
+      attack_rate: 0.2127
+      outbreak_size: null
+      population_at_risk: null
+      source: "Torner et al. 2022, 'Outbreaks of Gastroenteritis Due to Norovirus in Schools and Summer Camps in Catalonia, 2017-2019'"
+      source_url: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9241749/"
+      caveats: "Schools and summer camps had significantly different attack rates (21.27% vs 33.42%, RR 0.64) in the same source study -- this scenario uses the school figure as the primary benchmark; a camp variant would use the higher figure."
+    - description: "Catalonia summer camps, 2017-2019 norovirus outbreak surveillance"
+      attack_rate: 0.3342
+      outbreak_size: null
+      population_at_risk: null
+      source: "Torner et al. 2022 (same study, summer camp subgroup)"
+      source_url: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9241749/"
+      caveats: "Higher-density, more prolonged-contact setting than schools within the same study, consistent with this project's contact_rate_multiplier design intent (camps would warrant a higher multiplier than schools, not modeled as a separate scenario here for brevity)."
+  assumptions:
+    - "Point-source (e.g. single contaminated food item) introduction is NOT modeled -- this scenario models person-to-person/fomite spread only, per the branching process model's structure. If a food/water common-source component is important for your use case, treat the initial_cases as a proxy for 'effectively simultaneous multiple exposures' rather than a true single index case."
+  limitations:
+    - "R0 and k_dispersion for norovirus are both low_confidence parameters (see pathogens.yaml) -- this scenario's quantitative outputs should be treated with more caution than the SARS-CoV-2 or measles scenarios."
+
+measles_school_outbreak:
+  scenario_id: measles_school_outbreak
+  display_name: "Measles outbreak in an under-vaccinated school/community setting"
+  pathogen_id: measles
+  description: >
+    A measles introduction into a school or community setting with an
+    under-vaccinated pocket (e.g. a school with vaccine-exemption rates high
+    enough to leave a subgroup below the herd-immunity threshold). Uses the
+    literature-standard high household/close-contact secondary attack rate as
+    the calibration anchor, since named school-outbreak case studies with
+    precise population-at-risk denominators are less consistently reported
+    than the household literature.
+  population:
+    population_size: 400
+    initial_cases: 1
+    setting_type: "school/community with a partially-susceptible (under-vaccinated) subgroup"
+    contact_rate_multiplier: 1.0
+    contact_rate_multiplier_low: 0.7
+    contact_rate_multiplier_high: 1.4
+    exposure_duration_hours: null
+    ventilation_ach: 3.0
+  observed_outcomes:
+    - description: "Household/close-contact secondary attack rate among susceptible contacts (used as the closed-setting proxy benchmark, per pathogens.yaml measles.secondary_attack_rate)"
+      attack_rate: 0.85
+      outbreak_size: null
+      population_at_risk: null
+      source: "See pathogens.yaml: measles.secondary_attack_rate sourcing"
+      caveats: "This is a household-contact SAR, used here as a susceptible-subgroup proxy, not a whole-school attack rate (which would be much lower once population-level vaccination coverage is accounted for) -- the scenario's effective population-level attack rate depends heavily on the assumed proportion susceptible, which is a scenario input the user must set explicitly (see examples/)."
+  assumptions:
+    - "population_size represents the full school/community; actual case counts depend critically on the (user-specified) proportion of that population who are susceptible -- this project does not hardcode a vaccination-coverage assumption into the scenario itself, since this varies enormously by real setting and is exactly the kind of policy-relevant input a user should set explicitly (see interventions/pharmaceutical.py)."
+  limitations:
+    - "k_dispersion for measles is a low-confidence placeholder (see pathogens.yaml)."
+    - "Does not model age-structured contact patterns (e.g. elevated transmission among young children specifically), a known simplification."
+
+varicella_school_outbreak:
+  scenario_id: varicella_school_outbreak
+  display_name: "Varicella outbreak in a school/childcare setting"
+  pathogen_id: varicella
+  description: >
+    A varicella introduction into a school or childcare setting among
+    susceptible (unvaccinated or vaccine-naive) children, using the
+    well-established household secondary attack rate literature as the
+    calibration anchor.
+  population:
+    population_size: 200
+    initial_cases: 1
+    setting_type: "school/childcare setting among susceptible children"
+    contact_rate_multiplier: 1.0
+    contact_rate_multiplier_low: 0.6
+    contact_rate_multiplier_high: 1.5
+    exposure_duration_hours: null
+    ventilation_ach: 3.0
+  observed_outcomes:
+    - description: "Household secondary attack rate among susceptible contacts (closed-setting proxy benchmark, per pathogens.yaml varicella.secondary_attack_rate)"
+      attack_rate: 0.85
+      outbreak_size: null
+      population_at_risk: null
+      source: "See pathogens.yaml: varicella.secondary_attack_rate sourcing"
+      caveats: "Household-contact SAR used as a susceptible-subgroup proxy, not a whole-school attack rate."
+    - description: "Military training centre outbreak (lower-bound counterexample; see pathogens.yaml notes)"
+      attack_rate: 0.2143
+      outbreak_size: 18
+      population_at_risk: 84
+      source: "Bhatta et al. 2022, 'An Outbreak Investigation of Varicella Zoster among Male Military Personnel in a Military Training Centre'"
+      source_url: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9252222/"
+      caveats: "Substantially lower than typical household SAR, plausibly reflecting partial pre-existing immunity in the study population rather than lower intrinsic transmissibility -- included specifically to illustrate that setting alone does not determine attack rate; susceptibility structure matters at least as much."
+  assumptions:
+    - "As with the measles scenario, effective population-level attack rate depends on the user-specified proportion susceptible, which is not hardcoded into this scenario."
+  limitations:
+    - "k_dispersion for varicella is a low-confidence placeholder (see pathogens.yaml)."
+    - "The two observed_outcomes benchmarks span a wide range (21% to 85%), reflecting genuinely different susceptibility structures in the underlying populations -- this scenario should not be calibrated to a single number without first fixing the susceptible-fraction assumption."
