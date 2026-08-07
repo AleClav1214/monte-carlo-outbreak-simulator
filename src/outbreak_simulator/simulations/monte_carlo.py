@@ -32,8 +32,8 @@ Monte Carlo sampling methodology (docs/design_document.md).
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Callable
 
 import numpy as np
 from scipy import stats
@@ -45,7 +45,8 @@ from outbreak_simulator.models.base import OutbreakModel, SimulationResult
 class MonteCarloConfig:
     n_iterations: int = 2000
     master_seed: int = 20260720  # date-stamped default; always pass an explicit seed for real analyses
-    max_stored_results: int | None = None  # if set, subsample SimulationResults kept in memory (summary stats use all iterations regardless)
+    # if set, subsample SimulationResults kept in memory (summary stats use all iterations regardless)
+    max_stored_results: int | None = None
 
 
 @dataclass
@@ -68,7 +69,7 @@ class OutputSummary:
     n: int
 
     @classmethod
-    def from_samples(cls, samples: np.ndarray) -> "OutputSummary":
+    def from_samples(cls, samples: np.ndarray) -> OutputSummary:
         samples = np.asarray(samples, dtype=float)
         mean = float(np.mean(samples))
         std = float(np.std(samples, ddof=1)) if len(samples) > 1 else 0.0
@@ -112,7 +113,8 @@ class MonteCarloResult:
     raw_attack_rates: np.ndarray
     raw_final_sizes: np.ndarray
     stored_results: list[SimulationResult] = field(default_factory=list)
-    sampled_parameters: dict[str, np.ndarray] = field(default_factory=dict)  # parameter name -> array of per-iteration draws
+    # parameter name -> array of per-iteration draws
+    sampled_parameters: dict[str, np.ndarray] = field(default_factory=dict)
 
 
 ModelFactory = Callable[[np.random.Generator], tuple[OutbreakModel, dict]]

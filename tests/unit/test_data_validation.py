@@ -7,7 +7,11 @@ from pydantic import ValidationError
 
 from outbreak_simulator.data.loaders import get_parameter, get_pathogen, get_scenario, list_pathogens, list_scenarios
 from outbreak_simulator.data.schemas import DistributionFamily, EvidenceQuality, ParameterEstimate
-from outbreak_simulator.data.validation import DataIntegrityError, check_referential_integrity, validate_all, ValidationReport
+from outbreak_simulator.data.validation import (
+    DataIntegrityError,
+    ValidationReport,
+    validate_all,
+)
 
 
 class TestParameterEstimateSchema:

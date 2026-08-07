@@ -62,7 +62,8 @@ def parameter_distribution_plot(param: ParameterEstimate, samples: np.ndarray | 
         ax.hist(samples, bins=50, density=True, alpha=0.6, color="#2980b9", label="Monte Carlo samples")
     ax.axvline(param.point_estimate, color="#2c3e50", linestyle="-", linewidth=2, label="Point estimate")
     if param.low is not None and param.high is not None:
-        ax.axvspan(param.low, param.high, alpha=0.15, color="#2c3e50", label=f"{int((param.ci_level or 0.95)*100)}% interval")
+        ci_pct = int((param.ci_level or 0.95) * 100)
+        ax.axvspan(param.low, param.high, alpha=0.15, color="#2c3e50", label=f"{ci_pct}% interval")
     ax.set_xlabel(f"{param.display_name} ({param.unit})")
     ax.set_ylabel("Density")
     ax.set_title(f"{param.display_name}\nsource: {param.source[:70]}{'...' if len(param.source) > 70 else ''}")
@@ -72,14 +73,18 @@ def parameter_distribution_plot(param: ParameterEstimate, samples: np.ndarray | 
     return fig
 
 
-def attack_rate_histogram(mc_result: MonteCarloResult, observed_value: float | None = None, title: str = "Attack rate distribution") -> plt.Figure:
+def attack_rate_histogram(
+    mc_result: MonteCarloResult, observed_value: float | None = None, title: str = "Attack rate distribution"
+) -> plt.Figure:
     fig, ax = plt.subplots(figsize=(7, 4.5))
     ax.hist(mc_result.raw_attack_rates, bins=40, color="#8e44ad", alpha=0.7)
     s = mc_result.attack_rate_summary
     ax.axvline(s.median, color="#2c3e50", linewidth=2, label=f"Median ({s.median:.1%})")
     ax.axvspan(s.percentile_5, s.percentile_95, alpha=0.1, color="#2c3e50", label="95% UI")
     if observed_value is not None:
-        ax.axvline(observed_value, color="#c0392b", linewidth=2, linestyle="--", label=f"Observed ({observed_value:.1%})")
+        ax.axvline(
+            observed_value, color="#c0392b", linewidth=2, linestyle="--", label=f"Observed ({observed_value:.1%})"
+        )
     ax.set_xlabel("Attack rate")
     ax.set_ylabel("Simulated iterations")
     ax.set_title(title)

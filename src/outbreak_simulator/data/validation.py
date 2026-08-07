@@ -130,7 +130,8 @@ def validate_all(pathogens_raw: dict[str, dict], scenarios_raw: dict[str, dict])
 
     pathogens: dict[str, PathogenParameterSet] = {}
     for pid, raw in pathogens_raw.items():
-        check_missing_data_policy(raw, f"pathogen '{pid}'", {"pathogen_id", "parameters", "last_reviewed", "review_method"}, report)
+        required = {"pathogen_id", "parameters", "last_reviewed", "review_method"}
+        check_missing_data_policy(raw, f"pathogen '{pid}'", required, report)
         validated = validate_pathogen_dict(raw, pid, report)
         if validated is not None:
             pathogens[pid] = validated

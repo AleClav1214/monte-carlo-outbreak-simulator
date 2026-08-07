@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import numpy as np
-import pytest
 
 from outbreak_simulator.models.branching_process import BranchingProcessConfig, BranchingProcessModel
 from outbreak_simulator.simulations.convergence import (
@@ -67,8 +66,9 @@ class TestMonteCarloEngine:
         assert len(result.raw_attack_rates) == 317
 
     def test_store_results_flag(self):
-        result_stored = run_monte_carlo(_simple_factory, MonteCarloConfig(n_iterations=50, master_seed=1), store_results=True)
-        result_not_stored = run_monte_carlo(_simple_factory, MonteCarloConfig(n_iterations=50, master_seed=1), store_results=False)
+        cfg = MonteCarloConfig(n_iterations=50, master_seed=1)
+        result_stored = run_monte_carlo(_simple_factory, cfg, store_results=True)
+        result_not_stored = run_monte_carlo(_simple_factory, cfg, store_results=False)
         assert len(result_stored.stored_results) == 50
         assert len(result_not_stored.stored_results) == 0
 

@@ -48,7 +48,9 @@ class TransPhyloNotAvailableError(RuntimeError):
 class TransPhyloConfig:
     dated_tree_newick: str  # a dated phylogeny in Newick format, e.g. from treedater/BEAST2
     sample_dates: dict[str, float]  # tip label -> sampling date (decimal year or days since a reference)
-    generation_time_shape: float  # Gamma shape for the within-host generation time (see pathogens.yaml generation_interval, converted to years if using decimal-year dates)
+    # Gamma shape for the within-host generation time (see pathogens.yaml
+    # generation_interval, converted to years if using decimal-year dates)
+    generation_time_shape: float
     generation_time_scale: float
     sampling_time_shape: float  # Gamma shape for time from infection to sampling
     sampling_time_scale: float
@@ -79,7 +81,9 @@ cat("TransPhylo run complete.\n")
 """
 
 
-def _generate_r_script(cfg: TransPhyloConfig, tree_path: Path, out_matrix: Path, out_rds: Path, date_last_sample: float) -> str:
+def _generate_r_script(
+    cfg: TransPhyloConfig, tree_path: Path, out_matrix: Path, out_rds: Path, date_last_sample: float
+) -> str:
     return R_SCRIPT_TEMPLATE.format(
         tree_path=str(tree_path), date_last_sample=date_last_sample,
         mcmc_iterations=cfg.mcmc_iterations,
@@ -128,7 +132,6 @@ def run_transphylo_rpy2(cfg: TransPhyloConfig):
     interactive/notebook use since it avoids file round-tripping and
     returns live R objects. See module docstring for install instructions."""
     try:
-        import rpy2.robjects as ro
         from rpy2.robjects.packages import importr
     except ImportError as exc:
         raise TransPhyloNotAvailableError(

@@ -64,7 +64,11 @@ def masking(coverage: float = 0.7, evidence_basis: str = "observational") -> Int
         source = "Pooled observational-study meta-analysis, non-healthcare-worker subgroup (OR 0.53, 95% CI 0.36-0.79)"
     elif evidence_basis == "rct":
         mult, low, high = 0.92, 0.81, 1.04
-        source = "Pooled community-mask RCT evidence (adjusted OR 0.92, 95% CI 0.81-1.04) -- effect not statistically significant; included to represent genuine scientific disagreement, not to be treated as a confident estimate either"
+        source = (
+            "Pooled community-mask RCT evidence (adjusted OR 0.92, 95% CI 0.81-1.04) -- effect "
+            "not statistically significant; included to represent genuine scientific "
+            "disagreement, not to be treated as a confident estimate either"
+        )
     else:
         raise ValueError("evidence_basis must be 'observational' or 'rct'")
     return Intervention(
@@ -75,7 +79,10 @@ def masking(coverage: float = 0.7, evidence_basis: str = "observational") -> Int
         multiplier_high=high,
         coverage=coverage,
         source=source,
-        description="Per-contact transmission-probability reduction from mask-wearing; coverage = population compliance rate.",
+        description=(
+            "Per-contact transmission-probability reduction from mask-wearing; "
+            "coverage = population compliance rate."
+        ),
     )
 
 
@@ -92,12 +99,21 @@ def ventilation(baseline_ach: float, improved_ach: float, coverage: float = 1.0)
         multiplier_low=max(mult * 0.7, 0.0),
         multiplier_high=min(mult * 1.3, 1.0),
         coverage=coverage,
-        source="Wells-Riley rebreathed-air-fraction approximation (risk approx. proportional to 1/ACH); CDC baseline (5 ACH) and healthcare airborne-isolation target (6-12 ACH) as reference points",
-        description="Models ventilation as reducing the effective concentration of infectious aerosol via increased clean-air supply.",
+        source=(
+            "Wells-Riley rebreathed-air-fraction approximation (risk approx. proportional to "
+            "1/ACH); CDC baseline (5 ACH) and healthcare airborne-isolation target "
+            "(6-12 ACH) as reference points"
+        ),
+        description=(
+            "Models ventilation as reducing the effective concentration of infectious "
+            "aerosol via increased clean-air supply."
+        ),
     )
 
 
-def air_filtration(room_volume_m3: float, clean_air_delivery_rate_m3h: float, baseline_ach: float, coverage: float = 1.0) -> Intervention:
+def air_filtration(
+    room_volume_m3: float, clean_air_delivery_rate_m3h: float, baseline_ach: float, coverage: float = 1.0
+) -> Intervention:
     """Portable HEPA air filtration, modeled as equivalent additional ACH
     (CDC's Clean Air Delivery Rate framework: CADR / room_volume ~ additional ACH)."""
     if room_volume_m3 <= 0:
@@ -112,6 +128,12 @@ def air_filtration(room_volume_m3: float, clean_air_delivery_rate_m3h: float, ba
         multiplier_low=max(mult * 0.7, 0.0),
         multiplier_high=min(mult * 1.3, 1.0),
         coverage=coverage,
-        source="CDC Clean Air Delivery Rate (CADR) equivalence framework + Wells-Riley approximation (see ventilation() docstring)",
-        description="Portable HEPA filtration treated as equivalent additional air changes per hour, stacked on top of baseline ventilation.",
+        source=(
+            "CDC Clean Air Delivery Rate (CADR) equivalence framework + Wells-Riley "
+            "approximation (see ventilation() docstring)"
+        ),
+        description=(
+            "Portable HEPA filtration treated as equivalent additional air changes per "
+            "hour, stacked on top of baseline ventilation."
+        ),
     )

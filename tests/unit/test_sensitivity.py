@@ -5,7 +5,6 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from outbreak_simulator.data import get_pathogen
 from outbreak_simulator.sensitivity.global_sensitivity import (
     leave_one_out_variance_contribution,
     partial_rank_correlation,
@@ -21,11 +20,14 @@ class TestOneWaySensitivity:
             baseline_r0=sars_cov_2.parameters["r0"].point_estimate,
             baseline_k=sars_cov_2.parameters["k_dispersion"].point_estimate,
             contact_multiplier=1.5,
-            parameters_to_vary={"r0": sars_cov_2.parameters["r0"], "k_dispersion": sars_cov_2.parameters["k_dispersion"]},
+            parameters_to_vary={
+                "r0": sars_cov_2.parameters["r0"], "k_dispersion": sars_cov_2.parameters["k_dispersion"]
+            },
             n_reps_per_point=50,
         )
         assert len(results) == 2
-        assert {r.parameter_name for r in results} == {"Basic reproduction number (R0)", "Negative-binomial dispersion parameter (k)"}
+        expected_names = {"Basic reproduction number (R0)", "Negative-binomial dispersion parameter (k)"}
+        assert {r.parameter_name for r in results} == expected_names
 
     def test_sorted_by_swing_descending(self, sars_cov_2):
         results = one_way_sensitivity(
@@ -33,7 +35,9 @@ class TestOneWaySensitivity:
             baseline_r0=sars_cov_2.parameters["r0"].point_estimate,
             baseline_k=sars_cov_2.parameters["k_dispersion"].point_estimate,
             contact_multiplier=1.5,
-            parameters_to_vary={"r0": sars_cov_2.parameters["r0"], "k_dispersion": sars_cov_2.parameters["k_dispersion"]},
+            parameters_to_vary={
+                "r0": sars_cov_2.parameters["r0"], "k_dispersion": sars_cov_2.parameters["k_dispersion"]
+            },
             n_reps_per_point=50,
         )
         swings = [r.swing for r in results]
@@ -62,7 +66,9 @@ class TestOneWaySensitivity:
 class TestPRCC:
     def test_requires_at_least_two_parameters(self):
         with pytest.raises(ValueError):
-            partial_rank_correlation({"x": np.random.default_rng(1).normal(size=100)}, np.random.default_rng(2).normal(size=100))
+            partial_rank_correlation(
+                {"x": np.random.default_rng(1).normal(size=100)}, np.random.default_rng(2).normal(size=100)
+            )
 
     def test_detects_strong_known_driver(self):
         """A synthetic case where output is a deterministic (noisy) function of
@@ -90,7 +96,10 @@ class TestLeaveOneOutAndScenarios:
         r0 = sars_cov_2.parameters["r0"]
         k = sars_cov_2.parameters["k_dispersion"]
         dists = {
-            "r0": stats.gamma(a=(r0.point_estimate / ((r0.high - r0.low) / 4)) ** 2, scale=((r0.high - r0.low) / 4) ** 2 / r0.point_estimate),
+            "r0": stats.gamma(
+                a=(r0.point_estimate / ((r0.high - r0.low) / 4)) ** 2,
+                scale=((r0.high - r0.low) / 4) ** 2 / r0.point_estimate,
+            ),
             "k_dispersion": stats.lognorm(s=0.8, scale=k.point_estimate),
         }
         results = leave_one_out_variance_contribution(
@@ -100,7 +109,8 @@ class TestLeaveOneOutAndScenarios:
         )
         assert len(results) == 2
         for r in results:
-            assert -0.5 <= r.variance_contribution_fraction <= 1.0  # allow small negative from MC noise, but not wildly so
+            # allow small negative from MC noise, but not wildly so
+            assert -0.5 <= r.variance_contribution_fraction <= 1.0
 
     def test_scenario_robustness_orders_best_worse_case(self):
         results = scenario_robustness_analysis(

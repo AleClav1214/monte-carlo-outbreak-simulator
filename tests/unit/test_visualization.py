@@ -14,6 +14,7 @@ import pytest
 from outbreak_simulator.data import get_parameter
 from outbreak_simulator.models.branching_process import BranchingProcessConfig, BranchingProcessModel
 from outbreak_simulator.models.distributions import sample_parameter
+from outbreak_simulator.sensitivity.global_sensitivity import PRCCResult
 from outbreak_simulator.sensitivity.one_way import OneWayResult
 from outbreak_simulator.simulations.monte_carlo import MonteCarloConfig, run_monte_carlo
 from outbreak_simulator.transmission_inference import simulate_ground_truth_tree, wallinga_teunis_reconstruction
@@ -26,7 +27,6 @@ from outbreak_simulator.visualization import (
     prcc_bar_chart,
     tornado_chart,
 )
-from outbreak_simulator.sensitivity.global_sensitivity import PRCCResult
 
 
 def _small_mc_result(store=True):

@@ -58,15 +58,20 @@ def run_scenario(
 
     r0_param = pathogen.parameters["r0"]
     k_param = pathogen.parameters["k_dispersion"]
-    effective_population = max(int(round(scenario.population.population_size * susceptible_fraction)), scenario.population.initial_cases)
+    effective_population = max(
+        int(round(scenario.population.population_size * susceptible_fraction)),
+        scenario.population.initial_cases,
+    )
 
     def factory(rng: np.random.Generator):
         r0 = float(sample_parameter(r0_param, rng))
         k = float(sample_parameter(k_param, rng))
         contact_mult = scenario.population.contact_rate_multiplier
-        if scenario.population.contact_rate_multiplier_low is not None and scenario.population.contact_rate_multiplier_high is not None:
+        mult_low = scenario.population.contact_rate_multiplier_low
+        mult_high = scenario.population.contact_rate_multiplier_high
+        if mult_low is not None and mult_high is not None:
             # propagate uncertainty in the setting's own contact_rate_multiplier, not just the pathogen's r0/k
-            low, high = scenario.population.contact_rate_multiplier_low, scenario.population.contact_rate_multiplier_high
+            low, high = mult_low, mult_high
             contact_mult = float(rng.triangular(low, scenario.population.contact_rate_multiplier, high))
         intervention_mult = stack.sample_combined_multiplier(rng)
         r_effective = r0 * contact_mult * intervention_mult
@@ -101,7 +106,8 @@ def print_summary(result: ScenarioRunResult) -> str:
         f"Intervention stack: {result.intervention_stack.name}",
         f"Monte Carlo iterations: {result.mc_result.config.n_iterations} (seed={result.mc_result.config.master_seed})",
         "",
-        f"Attack rate  -- mean {s.mean:.1%}, median {s.median:.1%}, 95% UI [{s.percentile_5:.1%}, {s.percentile_95:.1%}]",
+        f"Attack rate  -- mean {s.mean:.1%}, median {s.median:.1%}, "
+        f"95% UI [{s.percentile_5:.1%}, {s.percentile_95:.1%}]",
         f"Extinction probability: {result.mc_result.extinction_probability:.1%}",
         f"Convergence: {result.convergence.recommendation}",
     ]

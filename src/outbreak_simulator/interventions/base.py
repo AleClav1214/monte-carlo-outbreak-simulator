@@ -26,7 +26,6 @@ already dilutes aerosol to negligible concentration).
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional
 
 from scipy import stats
 
@@ -48,8 +47,8 @@ class Intervention:
     name: str
     category: str  # "pharmaceutical" | "environmental" | "behavioral"
     transmission_multiplier: float
-    multiplier_low: Optional[float] = None
-    multiplier_high: Optional[float] = None
+    multiplier_low: float | None = None
+    multiplier_high: float | None = None
     coverage: float = 1.0
     source: str = ""
     description: str = ""

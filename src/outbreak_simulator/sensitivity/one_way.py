@@ -16,8 +16,8 @@ propagation across all parameters simultaneously matter.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable
 
 import numpy as np
 
@@ -123,9 +123,9 @@ def one_way_sensitivity_generic(
     for name, (low, high) in param_ranges.items():
         baseline_val = baseline_params[name]
 
-        def run_at(value: float, s: int) -> float:
+        def run_at(value: float, s: int, param_name: str = name) -> float:
             params = dict(baseline_params)
-            params[name] = value
+            params[param_name] = value
             outs = [simulate_fn(params, s + r) for r in range(n_reps_per_point)]
             return float(np.mean(outs))
 

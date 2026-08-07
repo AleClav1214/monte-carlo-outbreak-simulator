@@ -51,14 +51,23 @@ def testing_isolation(
     net_reduction = detection_probability * isolation_effectiveness
     mult = 1 - net_reduction
     return Intervention(
-        name=f"Testing + isolation (sensitivity={test_sensitivity:.2f}, freq={testing_frequency_per_infectious_period:.1f}/infectious period)",
+        name=(
+            f"Testing + isolation (sensitivity={test_sensitivity:.2f}, "
+            f"freq={testing_frequency_per_infectious_period:.1f}/infectious period)"
+        ),
         category="behavioral",
         transmission_multiplier=max(mult, 0.0),
         multiplier_low=max(mult - 0.1, 0.0),
         multiplier_high=min(mult + 0.1, 1.0),
         coverage=coverage,
-        source="Standard test-and-isolate epidemiological model: P(detect) = 1-(1-sensitivity)^n_tests, scaled by isolation effectiveness",
-        description="Reduces transmission by detecting and isolating infectious individuals before they complete their transmission potential.",
+        source=(
+            "Standard test-and-isolate epidemiological model: P(detect) = "
+            "1-(1-sensitivity)^n_tests, scaled by isolation effectiveness"
+        ),
+        description=(
+            "Reduces transmission by detecting and isolating infectious individuals "
+            "before they complete their transmission potential."
+        ),
     )
 
 
@@ -77,8 +86,14 @@ def quarantine_contacts(quarantine_effectiveness: float, contact_tracing_coverag
         category="behavioral",
         transmission_multiplier=1 - quarantine_effectiveness,
         coverage=contact_tracing_coverage,
-        source="Standard contact-tracing-and-quarantine model: effect requires both successful tracing (coverage) and adherent quarantine (effectiveness)",
-        description="Reduces onward transmission from contacts of known cases who are identified and quarantined before becoming infectious.",
+        source=(
+            "Standard contact-tracing-and-quarantine model: effect requires both successful "
+            "tracing (coverage) and adherent quarantine (effectiveness)"
+        ),
+        description=(
+            "Reduces onward transmission from contacts of known cases who are identified "
+            "and quarantined before becoming infectious."
+        ),
     )
 
 
@@ -102,6 +117,12 @@ def occupancy_reduction(occupancy_fraction: float) -> Intervention:
         multiplier_low=max(occupancy_fraction - 0.15, 0.0),
         multiplier_high=min(occupancy_fraction + 0.15, 1.0),
         coverage=1.0,
-        source="Well-mixed-population approximation: contact opportunities per unit time scale approximately linearly with occupancy",
-        description="Reduces transmission by reducing the number of people sharing the space, approximated as linear in a well-mixed setting.",
+        source=(
+            "Well-mixed-population approximation: contact opportunities per unit time "
+            "scale approximately linearly with occupancy"
+        ),
+        description=(
+            "Reduces transmission by reducing the number of people sharing the space, "
+            "approximated as linear in a well-mixed setting."
+        ),
     )

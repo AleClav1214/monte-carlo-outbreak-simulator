@@ -29,7 +29,8 @@ import numpy as np
 class ConvergenceReport:
     n: int
     running_mean_final: float
-    running_mean_relative_change_last_10pct: float  # how much the running mean moved over the final 10% of iterations, relative to its value
+    # how much the running mean moved over the final 10% of iterations, relative to its value
+    running_mean_relative_change_last_10pct: float
     monte_carlo_standard_error: float
     split_half_rhat: float
     converged: bool

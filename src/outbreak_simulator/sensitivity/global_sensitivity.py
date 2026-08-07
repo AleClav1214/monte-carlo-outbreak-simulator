@@ -75,7 +75,8 @@ def partial_rank_correlation(sampled_params: dict[str, np.ndarray], output: np.n
     if len(names) < 2:
         raise ValueError("PRCC requires at least 2 varying parameters to control for one another")
 
-    # rank-transform everything (this is what makes it a *rank* correlation, robust to nonlinear-but-monotonic relationships)
+    # rank-transform everything (this is what makes it a *rank* correlation, robust to
+    # nonlinear-but-monotonic relationships)
     ranked = {name: stats.rankdata(arr) for name, arr in sampled_params.items()}
     ranked_output = stats.rankdata(output)
 
@@ -85,10 +86,10 @@ def partial_rank_correlation(sampled_params: dict[str, np.ndarray], output: np.n
         X_target = ranked[target]
         X_others = np.column_stack([ranked[n] for n in others]) if others else np.empty((len(X_target), 0))
 
-        def residual(y: np.ndarray) -> np.ndarray:
-            if X_others.shape[1] == 0:
+        def residual(y: np.ndarray, x_others: np.ndarray = X_others) -> np.ndarray:
+            if x_others.shape[1] == 0:
                 return y - y.mean()
-            design = np.column_stack([np.ones(len(y)), X_others])
+            design = np.column_stack([np.ones(len(y)), x_others])
             coef, *_ = np.linalg.lstsq(design, y, rcond=None)
             return y - design @ coef
 
@@ -112,7 +113,7 @@ def leave_one_out_variance_contribution(
     population_size: int,
     initial_cases: int,
     baseline_point_estimates: dict[str, float],
-    parameter_distributions: dict[str, "callable"],  # name -> scipy dist with .rvs(size, random_state)
+    parameter_distributions: dict[str, callable],  # name -> scipy dist with .rvs(size, random_state)
     contact_multiplier: float,
     n_iterations: int = 2000,
     seed: int = 20260720,
@@ -184,5 +185,7 @@ def scenario_robustness_analysis(
                 r_effective=params["r0"] * contact_multiplier, k_dispersion=params["k_dispersion"],
             )
             rates[i] = BranchingProcessModel(cfg).run(rng).attack_rate
-        results.append(ScenarioComparisonResult(scenario_name=name, parameters=params, mean_attack_rate=float(rates.mean())))
+        results.append(ScenarioComparisonResult(
+            scenario_name=name, parameters=params, mean_attack_rate=float(rates.mean())
+        ))
     return results

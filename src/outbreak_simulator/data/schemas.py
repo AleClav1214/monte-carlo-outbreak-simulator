@@ -27,10 +27,8 @@ insurance against it.
 from __future__ import annotations
 
 from enum import Enum
-from typing import Optional
 
 from pydantic import BaseModel, Field, field_validator, model_validator
-
 
 # --------------------------------------------------------------------------
 # Enumerations
@@ -83,16 +81,16 @@ class ParameterEstimate(BaseModel):
     display_name: str = Field(..., description="Human-readable label")
     distribution: DistributionFamily
     point_estimate: float = Field(..., description="Central estimate (mean or median, per source)")
-    low: Optional[float] = Field(None, description="Lower bound of reported uncertainty interval")
-    high: Optional[float] = Field(None, description="Upper bound of reported uncertainty interval")
-    ci_level: Optional[float] = Field(0.95, description="Confidence/credible level of (low, high), e.g. 0.95")
+    low: float | None = Field(None, description="Lower bound of reported uncertainty interval")
+    high: float | None = Field(None, description="Upper bound of reported uncertainty interval")
+    ci_level: float | None = Field(0.95, description="Confidence/credible level of (low, high), e.g. 0.95")
     unit: str = Field(..., description="Unit of measurement, e.g. 'days', 'dimensionless', 'probability'")
     source: str = Field(..., min_length=3, description="Citation: authors, year, journal/agency")
-    source_url: Optional[str] = None
+    source_url: str | None = None
     evidence_quality: EvidenceQuality
     justification: str = Field(..., min_length=10, description="Why this value/distribution was chosen")
-    justification_detail: Optional[str] = None
-    notes: Optional[str] = Field(None, description="Caveats, controversy, context-dependence")
+    justification_detail: str | None = None
+    notes: str | None = Field(None, description="Caveats, controversy, context-dependence")
 
     @field_validator("point_estimate")
     @classmethod
@@ -102,7 +100,7 @@ class ParameterEstimate(BaseModel):
         return v
 
     @model_validator(mode="after")
-    def _bounds_consistent(self) -> "ParameterEstimate":
+    def _bounds_consistent(self) -> ParameterEstimate:
         if self.low is not None and self.high is not None and self.low > self.high:
             raise ValueError(f"{self.name}: low ({self.low}) > high ({self.high})")
         if self.low is not None and self.high is not None:
@@ -114,7 +112,7 @@ class ParameterEstimate(BaseModel):
         return self
 
     @model_validator(mode="after")
-    def _domain_by_unit(self) -> "ParameterEstimate":
+    def _domain_by_unit(self) -> ParameterEstimate:
         """Range checks tied to the semantic unit of the parameter."""
         if self.unit == "probability":
             for label, val in [("point_estimate", self.point_estimate), ("low", self.low), ("high", self.high)]:
@@ -149,7 +147,7 @@ class PathogenParameterSet(BaseModel):
     )
 
     @model_validator(mode="after")
-    def _required_core_parameters(self) -> "PathogenParameterSet":
+    def _required_core_parameters(self) -> PathogenParameterSet:
         required = {"r0", "incubation_period", "infectious_period", "k_dispersion", "secondary_attack_rate"}
         missing = required - set(self.parameters.keys())
         if missing:
@@ -175,22 +173,22 @@ class PopulationStructure(BaseModel):
             "relative to average community transmission. 1.0 = community baseline."
         ),
     )
-    contact_rate_multiplier_low: Optional[float] = Field(None, gt=0)
-    contact_rate_multiplier_high: Optional[float] = Field(None, gt=0)
-    exposure_duration_hours: Optional[float] = Field(None, gt=0)
-    ventilation_ach: Optional[float] = Field(None, gt=0, description="Baseline air changes per hour, if known/assumed")
+    contact_rate_multiplier_low: float | None = Field(None, gt=0)
+    contact_rate_multiplier_high: float | None = Field(None, gt=0)
+    exposure_duration_hours: float | None = Field(None, gt=0)
+    ventilation_ach: float | None = Field(None, gt=0, description="Baseline air changes per hour, if known/assumed")
 
 
 class ObservedOutcome(BaseModel):
     """A real, literature-reported outcome used for external validation."""
 
     description: str
-    attack_rate: Optional[float] = Field(None, ge=0, le=1)
-    outbreak_size: Optional[int] = Field(None, ge=0)
-    population_at_risk: Optional[int] = Field(None, gt=0)
+    attack_rate: float | None = Field(None, ge=0, le=1)
+    outbreak_size: int | None = Field(None, ge=0)
+    population_at_risk: int | None = Field(None, gt=0)
     source: str
-    source_url: Optional[str] = None
-    caveats: Optional[str] = Field(
+    source_url: str | None = None
+    caveats: str | None = Field(
         None, description="Known controversies or limitations of this specific data point"
     )
 

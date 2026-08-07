@@ -20,7 +20,9 @@ def tornado_chart(results: list[OneWayResult], title: str = "One-way sensitivity
     fig, ax = plt.subplots(figsize=(8, max(3, 0.6 * len(results) + 1)))
     y = np.arange(len(results))
     ax.barh(y, highs - lows, left=lows, color="#2980b9", alpha=0.75, height=0.6)
-    ax.axvline(baseline, color="#2c3e50", linestyle="--", linewidth=1.5, label="Baseline (all params at point estimate)")
+    ax.axvline(
+        baseline, color="#2c3e50", linestyle="--", linewidth=1.5, label="Baseline (all params at point estimate)"
+    )
     ax.set_yticks(y)
     ax.set_yticklabels(names)
     ax.set_xlabel("Output (mean attack rate)")
@@ -31,7 +33,11 @@ def tornado_chart(results: list[OneWayResult], title: str = "One-way sensitivity
     return fig
 
 
-def intervention_comparison_bar(scenario_results: dict[str, float], title: str = "Intervention scenario comparison", ylabel: str = "Mean attack rate") -> plt.Figure:
+def intervention_comparison_bar(
+    scenario_results: dict[str, float],
+    title: str = "Intervention scenario comparison",
+    ylabel: str = "Mean attack rate",
+) -> plt.Figure:
     """Bar chart comparing a metric (e.g. mean attack rate, or effective R)
     across named intervention scenarios -- the standard requirement-#6
     'scenario comparison' visualization."""
@@ -41,7 +47,7 @@ def intervention_comparison_bar(scenario_results: dict[str, float], title: str =
 
     fig, ax = plt.subplots(figsize=(max(6, 1.3 * len(names)), 5))
     bars = ax.bar(names, values, color=colors)
-    for bar, v in zip(bars, values):
+    for bar, v in zip(bars, values, strict=True):
         ax.annotate(f"{v:.2f}" if v > 1 else f"{v:.1%}", (bar.get_x() + bar.get_width() / 2, bar.get_height()),
                     ha="center", va="bottom", fontsize=9)
     ax.set_ylabel(ylabel)

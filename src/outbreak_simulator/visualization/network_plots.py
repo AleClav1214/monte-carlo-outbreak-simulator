@@ -34,13 +34,14 @@ def plot_transmission_network(
     edge_alphas = [max(0.15, min(graph[u][v]["weight"], 1.0)) for u, v in graph.edges]
 
     nx.draw_networkx_nodes(graph, pos, node_size=node_sizes, node_color=node_colors, alpha=0.85, ax=ax)
-    for (u, v), width, alpha in zip(graph.edges, edge_widths, edge_alphas):
+    for (u, v), width, alpha in zip(graph.edges, edge_widths, edge_alphas, strict=True):
         nx.draw_networkx_edges(graph, pos, edgelist=[(u, v)], width=width, alpha=alpha, edge_color="#7f8c8d",
                                 arrows=True, arrowsize=10, connectionstyle="arc3,rad=0.05", ax=ax)
     if graph.number_of_nodes() <= 60:
         nx.draw_networkx_labels(graph, pos, font_size=7, ax=ax)
 
-    ax.set_title(f"{title}\n(red = top {highlight_top_n_spreaders} reconstructed superspreaders, edge width = confidence)")
+    subtitle = f"(red = top {highlight_top_n_spreaders} reconstructed superspreaders, edge width = confidence)"
+    ax.set_title(f"{title}\n{subtitle}")
     ax.axis("off")
     fig.tight_layout()
     return fig

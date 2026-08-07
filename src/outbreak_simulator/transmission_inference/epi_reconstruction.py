@@ -84,14 +84,14 @@ def wallinga_teunis_reconstruction(
             most_likely_infector[int(order[j])] = None
             continue
         probs = weights / total
-        for c_idx, p in zip(candidates, probs):
+        for c_idx, p in zip(candidates, probs, strict=True):
             if p > 1e-6:
                 graph.add_edge(int(order[c_idx]), int(order[j]), weight=float(p))
         best = candidates[int(np.argmax(probs))]
         most_likely_infector[int(order[j])] = int(order[best])
 
     superspreader_scores: dict[int, float] = {int(node): 0.0 for node in graph.nodes}
-    for u, v, data in graph.edges(data=True):
+    for u, _v, data in graph.edges(data=True):
         superspreader_scores[u] = superspreader_scores.get(u, 0.0) + data["weight"]
 
     return ReconstructedTransmissionNetwork(
@@ -139,7 +139,7 @@ def simulate_ground_truth_tree(
         offspring_counts = negative_binomial_offspring(r_eff_gen, k_dispersion, rng, size=len(frontier))
 
         new_frontier = []
-        for infector_idx, n_offspring in zip(frontier, offspring_counts):
+        for infector_idx, n_offspring in zip(frontier, offspring_counts, strict=True):
             n_actual = min(int(n_offspring), susceptible)
             for _ in range(n_actual):
                 delay = rng.gamma(generation_interval_shape, generation_interval_scale)
@@ -171,7 +171,8 @@ def reconstruction_accuracy(
     total = 0
     for case_id, true_inf in true_infector.items():
         if true_inf is None:
-            continue  # skip true index cases; reconstruction correctly has no infector to guess for them by construction
+            # skip true index cases; reconstruction correctly has no infector to guess for them by construction
+            continue
         total += 1
         if reconstructed.most_likely_infector.get(case_id) == true_inf:
             matches += 1

@@ -5,7 +5,6 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from outbreak_simulator.data import get_parameter
 from outbreak_simulator.models.branching_process import BranchingProcessConfig, BranchingProcessModel
 from outbreak_simulator.models.distributions import (
     beta_from_mean_ci,

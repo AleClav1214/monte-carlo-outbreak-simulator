@@ -72,7 +72,10 @@ def calibrate_scenario(run_result: ScenarioRunResult) -> ScenarioCalibrationRepo
     n_benchmarks = len(per_obs)
     if n_benchmarks == 0:
         tier = "none (no external benchmark data available for this scenario)"
-        overall = "No external validation is possible for this scenario -- no observed_outcomes with a reported attack_rate are available."
+        overall = (
+            "No external validation is possible for this scenario -- no observed_outcomes "
+            "with a reported attack_rate are available."
+        )
     elif n_benchmarks == 1:
         tier = "external cohort validation (n=1)"
         overall = (
@@ -97,7 +100,10 @@ def calibrate_scenario(run_result: ScenarioRunResult) -> ScenarioCalibrationRepo
         "variants / population-immunity states has not been assessed.",
     ]
     if n_benchmarks <= 1:
-        not_established.insert(0, "Site-based validation: calibration against multiple independent occurrences of this same scenario type has not been assessed (only one real-world instance is available).")
+        not_established.insert(0, (
+            "Site-based validation: calibration against multiple independent occurrences of "
+            "this same scenario type has not been assessed (only one real-world instance is available)."
+        ))
 
     return ScenarioCalibrationReport(
         scenario_id=scenario.scenario_id, validation_tier=tier, n_independent_benchmarks=n_benchmarks,
@@ -116,7 +122,8 @@ def print_calibration_report(report: ScenarioCalibrationReport) -> str:
     for obs in report.per_observation:
         lines.append(f"  Benchmark: {obs.observation_description}")
         lines.append(f"    Source: {obs.observation_source}")
-        lines.append(f"    Observed={obs.coverage.observed_value:.1%}, 95% predictive interval={tuple(round(x,3) for x in obs.coverage.predictive_interval)}, "
+        interval_str = tuple(round(x, 3) for x in obs.coverage.predictive_interval)
+        lines.append(f"    Observed={obs.coverage.observed_value:.1%}, 95% predictive interval={interval_str}, "
                       f"percentile={obs.coverage.observed_percentile:.0f}, PPC p={obs.ppc_pvalue:.3f}")
         lines.append(f"    {obs.interpretation}")
         lines.append("")

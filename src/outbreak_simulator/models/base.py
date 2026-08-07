@@ -29,7 +29,8 @@ class SimulationResult:
     peak_incidence: int  # largest number of new infections in a single generation/timestep
     peak_time: float  # generation index or day at which peak_incidence occurred
     duration: float  # generations or days until no infectious individuals remain
-    daily_incidence: np.ndarray  # new infections per generation/timestep (calendar-time-mapped for SEIR; generation-indexed for branching)
+    daily_incidence: np.ndarray  # new infections per generation/timestep (calendar-time-mapped
+    # for SEIR; generation-indexed for branching)
     extinct: bool  # True if the chain/epidemic died out (as opposed to hitting a size cap)
     generation_sizes: np.ndarray | None = None  # branching-process-specific: cases per generation
     metadata: dict = field(default_factory=dict)

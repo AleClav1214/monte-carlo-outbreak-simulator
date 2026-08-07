@@ -1,4 +1,5 @@
-"""Visualization: epidemic curves, parameter distributions, transmission networks, intervention comparison, sensitivity plots."""
+"""Visualization: epidemic curves, parameter distributions, transmission networks,
+intervention comparison, sensitivity plots."""
 
 from outbreak_simulator.visualization.comparison_sensitivity_plots import (
     intervention_comparison_bar,

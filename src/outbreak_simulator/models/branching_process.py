@@ -54,7 +54,8 @@ class BranchingProcessConfig:
     initial_cases: int
     r_effective: float  # already composed: baseline_r0 * contact_rate_multiplier * intervention_modifiers
     k_dispersion: float
-    generation_interval_sampler: callable | None = None  # rng -> float days; if None, generation index is used as "time"
+    # rng -> float days; if None, generation index is used as "time"
+    generation_interval_sampler: callable | None = None
     max_generations: int = 200
     deplete_susceptibles: bool = True
 
