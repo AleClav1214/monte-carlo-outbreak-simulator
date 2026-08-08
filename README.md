@@ -6,6 +6,14 @@ transmission chains for closed-setting outbreaks (choirs, barracks,
 dormitories, schools) — built around real, cited literature parameters and
 a stochastic branching-process model with explicit superspreading support.
 
+```markdown
+## Example output
+
+![Intervention comparison](docs/images/intervention_comparison.png)
+
+![Transmission network reconstruction](docs/images/transmission_network.png)
+```
+
 ```python
 from outbreak_simulator.simulations import run_scenario, print_summary
 
